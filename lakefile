@@ -1,0 +1,64 @@
+PROJECT = 'alien'
+
+if LUA_VER == '5.2' then
+  LUA_NEED = 'lua52'
+  LUA_DIR  = ENV.LUA_DIR_5_2 or ENV.LUA_DIR
+  LUA_RUNNER = 'lua52'
+else
+  LUA_NEED = 'lua51'
+  LUA_DIR  = ENV.LUA_DIR
+  LUA_RUNNER = 'lua'
+end
+
+DYNAMIC  = DYNAMIC or false
+
+FFI_NEED = IF(DYNAMIC, 'ffi-static-md', 'ffi-static-mt')
+
+INSTALL_DIR = INSTALL_DIR or J(LUA_DIR,'libs',PROJECT)
+
+alien = c.shared{'c', 
+  base     = 'src',
+  src      = 'alien.c',
+  needs    = {LUA_NEED,FFI_NEED};
+  dynamic  = DYNAMIC;
+  strip    = true,
+  defines  = {
+    "WINDOWS";
+    "FFI_BUILDING"; -- for ffi static on windows
+  };
+  libflags = IF(MSVC, '/EXPORT:luaopen_alien_c');
+}
+
+alientest = c.shared{'alientest', 
+  base     = 'tests',
+  src      = 'alientest.c',
+  dynamic  = DYNAMIC,
+  strip    = true,
+}
+
+target('alien', alien)
+
+install = target('install', {
+  file.group{odir=J(INSTALL_DIR, 'share', PROJECT);src = alien };
+  file.group{odir=J(INSTALL_DIR, 'share');src = J('src','alien.lua') };
+  file.group{odir=J(INSTALL_DIR, 'test'); src = J('tests', 'test_alien.lua')};
+  file.group{odir=J(INSTALL_DIR, 'test'); src = alientest };
+  file.group{odir=J(INSTALL_DIR, 'doc');  src = J('doc', '*.md')};
+  file.group{odir=J(INSTALL_DIR, 'doc');  src = J('doc', '*.html')};
+})
+
+local function run(file, cwd)
+  print()
+  print("run " .. file)
+  if not TESTING then
+    if cwd then lake.chdir(cwd) end
+    os.execute( LUA_RUNNER .. ' ' .. file )
+    if cwd then lake.chdir("<") end
+    print()
+  end
+end
+
+target('test', install, function()
+  local test_dir = J(INSTALL_DIR,'test')
+  run(J(test_dir,'test_alien.lua'), test_dir)
+end)

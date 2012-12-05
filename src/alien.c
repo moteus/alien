@@ -48,7 +48,7 @@
 #endif
 
 
-#define LUA_COMPAT_ALL
+// #define LUA_COMPAT_ALL
 
 #define MYNAME          "alien"
 #define MYVERSION       MYNAME " library for " LUA_VERSION " / " VERSION
@@ -63,6 +63,11 @@
 #define ALIEN_SPLICE(_s, _t)    ALIEN__SPLICE(_s, _t)
 
 #if LUA_VERSION_NUM == 502
+
+#define luaL_register(L,n,f) luaL_newlib(L,f)
+
+#define lua_objlen           lua_rawlen
+
 static int luaL_typerror (lua_State *L, int narg, const char *tname) {
   const char *msg = lua_pushfstring(L, "%s expected, got %s",
                                     tname, luaL_typename(L, narg));
@@ -183,7 +188,7 @@ static const char *const alien_typenames[] =  {
 
 #ifdef WINDOWS
 
-static ffi_type* ffitypes[AT_ENTRY_COUNT];
+static ffi_type* ffitypes[AT_ENTRY_COUNT + 1];
 
 #else
 
@@ -554,6 +559,7 @@ static int alien_callback_new(lua_State *L) {
   return 1;
 }
 
+#pragma warning( disable : 4034 )
 static int alien_sizeof(lua_State *L) {
   static const size_t sizes[] = {
 #define MENTRY(_n, _b, _s, _a)  sizeof(_s),
@@ -564,6 +570,7 @@ static int alien_sizeof(lua_State *L) {
   lua_pushinteger(L, sizes[luaL_checkoption(L, 1, "int", alien_typenames)]);
   return 1;
 }
+#pragma warning(default:4034)
 
 static int alien_align(lua_State *L) {
   static const size_t aligns[] = {
@@ -764,7 +771,7 @@ static int alien_function_call(lua_State *L) {
   case AT_float: ffi_call(cif, af->fn, &fret, args); lua_pushnumber(L, fret); break;
   case AT_double: ffi_call(cif, af->fn, &dret, args); lua_pushnumber(L, dret); break;
   case AT_string: ffi_call(cif, af->fn, &pret, args);
-    (pret ? lua_pushstring(L, (const char *)pret) : lua_pushnil(L)); break;
+    if(pret) lua_pushstring(L, (const char *)pret); else lua_pushnil(L); break;
   case AT_pointer: ffi_call(cif, af->fn, &pret, args);
     (pret ? lua_pushlightuserdata(L, pret) : lua_pushnil(L)); break;
   default:

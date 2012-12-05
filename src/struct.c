@@ -5,7 +5,7 @@
 #include <string.h>
 
 
-#define LUA_COMPAT_ALL
+// #define LUA_COMPAT_ALL
 
 #include "lua.h"
 #include "lauxlib.h"
