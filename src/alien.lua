@@ -1,5 +1,3 @@
-
-
 local _M = require "alien.c"
 local alien = _M
 local io = require "io"
@@ -251,4 +249,4 @@ function _M.byval(buf)
   end
 end
 
-return _M
+return alien

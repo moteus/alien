@@ -4,6 +4,12 @@
 
 #include "config.h"
 
+#ifdef WIN32  
+# ifndef WINDOWS
+#  define WINDOWS
+# endif
+#endif
+
 #ifdef WINDOWS
 #define _CRT_SECURE_NO_DEPRECATE 1
 #include <windows.h>
@@ -49,6 +55,7 @@
 
 
 // #define LUA_COMPAT_ALL
+/* Lua 5.2 compatibility for Lua 5.3 */
 
 #define MYNAME          "alien"
 #define MYVERSION       MYNAME " library for " LUA_VERSION " / " VERSION
@@ -62,7 +69,10 @@
 #define ALIEN__SPLICE(_s, _t)   _s##_t
 #define ALIEN_SPLICE(_s, _t)    ALIEN__SPLICE(_s, _t)
 
-#if LUA_VERSION_NUM == 502
+#define LALLOC_FREE_STRING(lalloc, aud, s)              \
+  (lalloc)((aud), (s), sizeof(char) * (strlen(s) + 1), 0)
+
+#if LUA_VERSION_NUM >= 502
 
 #define luaL_register(L,n,f) luaL_newlib(L,f)
 
@@ -433,7 +443,7 @@ static int alien_library_get(lua_State *L) {
   strcpy(name, funcname);
   fn = alien_loadfunc(L, al->lib, funcname);
   if(!fn) {
-    lalloc(aud, name, 0, 0);
+    LALLOC_FREE_STRING(lalloc, aud, name);
     return lua_error(L);
   }
   alien_makefunction(L, al, fn, name);
@@ -606,7 +616,8 @@ static int alien_function_types(lua_State *L) {
     abi = FFI_DEFAULT_ABI;
   }
   if(af->params) {
-    lalloc(aud, af->params, 0, 0); lalloc(aud, af->ffi_params, 0, 0);
+    lalloc(aud, af->params, sizeof(alien_Type) * af->nparams, 0);
+    lalloc(aud, af->ffi_params, sizeof(ffi_type *) * af->nparams, 0);
     af->params = NULL; af->ffi_params = NULL;
   }
   af->nparams = lua_istable(L, 2) ? lua_objlen(L, 2) : lua_gettop(L) - 2;
@@ -797,7 +808,7 @@ static int alien_library_gc(lua_State *L) {
   if(al->lib) {
     alien_unload(al->lib);
     al->lib = NULL;
-    if(al->name) { lalloc(aud, al->name, 0, 0); al->name = NULL; }
+    if(al->name) { LALLOC_FREE_STRING(lalloc, aud, al->name); al->name = NULL; }
   }
   return 0;
 }
@@ -806,9 +817,9 @@ static int alien_function_gc(lua_State *L) {
   alien_Function *af = alien_checkfunction(L, 1);
   void *aud;
   lua_Alloc lalloc = lua_getallocf(L, &aud);
-  if(af->name) lalloc(aud, af->name, 0, 0);
-  if(af->params) lalloc(aud, af->params, 0, 0);
-  if(af->ffi_params) lalloc(aud, af->ffi_params, 0, 0);
+  if(af->name) LALLOC_FREE_STRING(lalloc, aud, af->name);
+  if(af->params) lalloc(aud, af->params, sizeof(alien_Type) * af->nparams, 0);
+  if(af->ffi_params) lalloc(aud, af->ffi_params, sizeof(ffi_type *) * af->nparams, 0);
   if(af->fn_ref) {
     luaL_unref(af->L, LUA_REGISTRYINDEX, af->fn_ref);
     ffi_closure_free(af->fn);
