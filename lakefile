@@ -20,7 +20,7 @@ FFI_NEED = IF(DYNAMIC, 'ffi-static-md', 'ffi-static-mt')
 
 INSTALL_DIR = INSTALL_DIR or J(LUA_DIR,'libs',PROJECT)
 
-alien = c.shared{'c', 
+alien = c.shared{'alien_c', 
   base     = 'src',
   src      = 'alien.c',
   needs    = {LUA_NEED,FFI_NEED};
@@ -43,7 +43,7 @@ alientest = c.shared{'alientest',
 target('alien', alien)
 
 install = target('install', {
-  file.group{odir=J(INSTALL_DIR, 'share', PROJECT);src = alien };
+  file.group{odir=J(INSTALL_DIR, 'share');src = alien };
   file.group{odir=J(INSTALL_DIR, 'share');src = J('src','alien.lua') };
   file.group{odir=J(INSTALL_DIR, 'test'); src = J('tests', 'test_alien.lua')};
   file.group{odir=J(INSTALL_DIR, 'test'); src = alientest };

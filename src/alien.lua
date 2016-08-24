@@ -1,4 +1,4 @@
-local _M = require "alien.c"
+local _M = require "alien_c"
 local alien = _M
 local io = require "io"
 
