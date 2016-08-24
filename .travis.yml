@@ -10,6 +10,7 @@ addons:
     packages:
       - libffi6
       - libffi-dev
+      - markdown
 
 matrix:
   include:
@@ -41,7 +42,8 @@ before_install:
   - export PATH=$PATH:$PWD/here/bin
 
 install:
-  - luarocks make rockspecs/alien-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+  # CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+  - luarocks make rockspecs/alien-scm-0.rockspec
 
 before_script:
   - luarocks show luacov-coveralls || luarocks install luacov-coveralls

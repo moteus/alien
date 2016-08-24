@@ -74,9 +74,17 @@
 
 #if LUA_VERSION_NUM >= 502
 
+#ifndef luaL_register
+
 #define luaL_register(L,n,f) luaL_newlib(L,f)
 
+#endif
+
+#ifndef lua_objlen
+
 #define lua_objlen           lua_rawlen
+
+#endif
 
 static int luaL_typerror (lua_State *L, int narg, const char *tname) {
   const char *msg = lua_pushfstring(L, "%s expected, got %s",
