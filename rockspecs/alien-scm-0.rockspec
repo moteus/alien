@@ -1,8 +1,8 @@
-package="@PACKAGE@"
-version="@VERSION@-1"
+package="alien"
+version="scm-0"
 source = {
-  url = "git://github.com/mascarenhas/@PACKAGE@.git",
-  branch = "v@VERSION@"
+  url = "git+https://github.com/moteus/alien.git",
+  branch = "master"
 }
 description = {
   summary = "Lua->C FFI",
