@@ -290,7 +290,7 @@ static int b_size (lua_State *L) {
 static int b_offset (lua_State *L) {
   Header h;
   const char *fmt = luaL_checkstring(L, 1);
-  int offset = luaL_optint(L, 2, 1);
+  int offset = luaL_optinteger(L, 2, 1);
   int optn = 1;
   size_t totalsize = 0;
   defaultoptions(&h);
@@ -330,10 +330,10 @@ static int b_unpack (lua_State *L) {
   if(lua_isuserdata(L, 2)) {
     data = alien_touserdata(L, 2);
     ld = (size_t)luaL_checkinteger(L, 3);
-    pos = luaL_optint(L, 4, 1) - 1;
+    pos = luaL_optinteger(L, 4, 1) - 1;
   } else {
     data = luaL_checklstring(L, 2, &ld);
-    pos = luaL_optint(L, 3, 1) - 1;
+    pos = luaL_optinteger(L, 3, 1) - 1;
   }
   defaultoptions(&h);
   lua_settop(L, 2);

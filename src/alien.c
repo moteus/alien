@@ -1152,8 +1152,8 @@ static int alien_isnull(lua_State *L) {
 /* Expose existing APIs for convenience */
 
 static int alien_table_new(lua_State *L) {
-  int narray = luaL_optint(L, 1, 0);
-  int nhash = luaL_optint(L, 2, 0);
+  int narray = luaL_optinteger(L, 1, 0);
+  int nhash = luaL_optinteger(L, 2, 0);
   lua_createtable(L, narray, nhash);
   return 1;
 }

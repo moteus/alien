@@ -44,15 +44,11 @@ before_install:
 install:
   - luarocks make rockspecs/alien-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
 
-before_script:
-  - luarocks show luacov-coveralls || luarocks install luacov-coveralls
-
 script:
   - make check
 
 after_success:
-  - coveralls -i libluasqlite3.c --dump c.report.json
-  - luacov-coveralls -j c.report.json -v
+  - coveralls -i alien.c
 
 notifications:
   email:
