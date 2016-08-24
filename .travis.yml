@@ -42,15 +42,13 @@ before_install:
   - export PATH=$PATH:$PWD/here/bin
 
 install:
-  # CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
-  - luarocks make rockspecs/alien-scm-0.rockspec
+  - luarocks make rockspecs/alien-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
 
 before_script:
   - luarocks show luacov-coveralls || luarocks install luacov-coveralls
 
 script:
-  - cd tests
-  - lua test_alien.lua
+  - make check
 
 after_success:
   - coveralls -i libluasqlite3.c --dump c.report.json
