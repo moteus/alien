@@ -5,6 +5,12 @@ python:
 
 sudo: false
 
+addons:
+  apt:
+    packages:
+      - libffi6
+      - libffi-dev
+
 matrix:
   include:
     - compiler: ": Lua51"
